@@ -241,7 +241,10 @@ struct Model {
 
 struct Font {
   uint32_t ref;
+  Texture* texture;
   Rasterizer* rasterizer;
+  float pixelDensity;
+  float lineHeight;
 };
 
 typedef struct {
@@ -4378,13 +4381,16 @@ Font* lovrFontCreate(Rasterizer* rasterizer) {
   Font* font = calloc(1, sizeof(Font));
   lovrAssert(font, "Out of memory");
   font->ref = 1;
-  font->rasterizer = rasterizer;
   lovrRetain(rasterizer);
+  font->rasterizer = rasterizer;
+  font->pixelDensity = (float) lovrRasterizerGetHeight(rasterizer);
+  font->lineHeight = 1.f;
   return font;
 }
 
 void lovrFontDestroy(void* ref) {
   Font* font = ref;
+  lovrRelease(font->texture, lovrTextureDestroy);
   lovrRelease(font->rasterizer, lovrRasterizerDestroy);
   free(font);
 }
